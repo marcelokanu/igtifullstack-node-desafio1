@@ -2,3 +2,5 @@ node_modules
 /.vscode
 testes.js
 cidades-estados-brasil-json-master.zip
+/src/json/estados/*
+!/src/json/estados/.gitkeep
