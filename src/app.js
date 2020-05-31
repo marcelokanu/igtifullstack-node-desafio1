@@ -4,45 +4,48 @@ const app = express();
 
 app.use(express.json());
 
-const dirJson = __dirname + "/json/"
+const dirJson = __dirname + "/json/";
 
-const states = JSON.parse(fs.readFileSync(dirJson + 'Estados.json', 'utf8', (err, data) => {
-  console.log(err);
-  console.log(data);
-}));
-
-
-
-const citys = JSON.parse(fs.readFileSync(dirJson + 'Cidades.json', 'utf8', (err, data) => {
-  console.log(err);
-  console.log(data);
-}));
-
-//Usando Reduce
-// const cidades_estados = citys.reduce((obj, {ID, Nome, Estado}) => {
-//   const {Sigla} = states.find(state => state.ID === Estado)
-//   if (!obj[Sigla]) obj[Sigla] = [];
-//   obj[Sigla].push({"id_cidade": ID, "nome": Nome});
-//   return obj;
-// }, {});
-const cidades_estados = []
-
-states.map(state => {
-  const citysOfState = []
-  citys.map(city => {
-    if (state.ID === city.Estado) {
-      citysOfState.push({"id":city.ID, "nome": city.Nome})
-    }
+const states = JSON.parse(
+  fs.readFileSync(dirJson + "Estados.json", "utf8", (err, data) => {
+    console.log(err);
+    console.log(data);
   })
-  cidades_estados.push({"id_estado": state.ID, "uf": state.Sigla, "nome": state.Nome, "cidades": citysOfState})
+);
+
+const citys = JSON.parse(
+  fs.readFileSync(dirJson + "Cidades.json", "utf8", (err, data) => {
+    console.log(err);
+    console.log(data);
+  })
+);
+
+const cidades_estados = [];
+
+states.map((state) => {
+  const citysOfState = [];
+  citys.map((city) => {
+    if (state.ID === city.Estado) {
+      citysOfState.push({ id: city.ID, nome: city.Nome });
+    }
+  });
+  cidades_estados.push({
+    id_estado: state.ID,
+    uf: state.Sigla,
+    nome: state.Nome,
+    cidades: citysOfState,
+  });
   fs.exists(`${dirJson}/estados/${state.Sigla}.json`, (existe) => {
     if (!existe) {
-      fs.writeFile(`${dirJson}/estados/${state.Sigla}.json`, JSON.stringify({"total": citysOfState.length, "cidades": citysOfState}), (err) => {
-        console.log(err);
-      })
+      fs.writeFile(
+        `${dirJson}/estados/${state.Sigla}.json`,
+        JSON.stringify({ total: citysOfState.length, cidades: citysOfState }),
+        (err) => {
+          console.log(err);
+        }
+      );
     }
-  })
-
+  });
 });
 
 app.get("/", (req, res) => {
@@ -57,15 +60,18 @@ app.get("/cidades", (req, res) => {
 });
 
 app.get("/estados/:uf", (req, res) => {
-  
-  const ufToLoad = JSON.parse(fs.readFileSync(dirJson + `/estados/${req.params.uf}.json`, 'utf8', (err, data) => {
-    console.log(err);
-    console.log(data);
-  }));
-  
+  const ufToLoad = JSON.parse(
+    fs.readFileSync(
+      dirJson + `/estados/${req.params.uf}.json`,
+      "utf8",
+      (err, data) => {
+        console.log(err);
+        console.log(data);
+      }
+    )
+  );
+
   return res.json(ufToLoad);
 });
-
-
 
 module.exports = app;
