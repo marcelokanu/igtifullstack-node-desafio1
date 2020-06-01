@@ -9,14 +9,12 @@ const dirJson = __dirname + "/json/";
 const states = JSON.parse(
   fs.readFileSync(dirJson + "Estados.json", "utf8", (err, data) => {
     console.log(err);
-    console.log(data);
   })
 );
 
 const citys = JSON.parse(
   fs.readFileSync(dirJson + "Cidades.json", "utf8", (err, data) => {
     console.log(err);
-    console.log(data);
   })
 );
 
@@ -26,14 +24,16 @@ states.map((state) => {
   const citysOfState = [];
   citys.map((city) => {
     if (state.ID === city.Estado) {
-      citysOfState.push({ id: city.ID, nome: city.Nome });
+      citysOfState.push({ id: city.ID, nome: city.Nome, tamanhoString: city.Nome.length });
     }
   });
   cidades_estados.push({
     id_estado: state.ID,
     uf: state.Sigla,
     nome: state.Nome,
+    totalcidades: citysOfState.length,
     cidades: citysOfState,
+    tamanhoString: citysOfState,
   });
   fs.exists(`${dirJson}/estados/${state.Sigla}.json`, (existe) => {
     if (!existe) {
