@@ -46,7 +46,6 @@ const generateJsonEstados = async (uf, totalcidades, cidades) => {
   }
 };
 
-
 //2 - Criar um método que recebe como parâmetro o UF do estado, realize a leitura do arquivo JSON correspondente e retorne a quantidade de cidades daquele estado.
 app.get("/estados/:uf", (req, res) => {
   return res.json(loadFile(req.params.uf));
@@ -86,6 +85,22 @@ app.get("/min5", (_, res) => {
   return res.json(["5 menos quantidade de cidades", menorQtdeCidades.slice(0, 5)]);
 });
 
+//5 - Criar um método que imprima no console um array com a cidade de maior nome de cada estado, seguida de seu UF. Em caso de empate, considerar a ordem alfabética para ordená-los e então retornar o primeiro. Por exemplo: [“Nome da Cidade – UF”, “Nome da Cidade – UF”, ...].
+
+app.get("/maiorcidade", (_, res) => {
+  loadCidadesEstado()
+  const maiorcidade = 0
+  CidadesEstado.map(cidades =>  {
+    cidades.forEach(cidade => {
+      if (cidade.tamanhostring > maiorcidade ) {
+        maiorcidade = cidade.tamanhostring
+      }
+    });
+  })
+  res.json(maiorcidade);
+});
+
+
 app.get("/cidades", (_, res) => {
   res.json(cidades);
 });
@@ -99,15 +114,13 @@ function loadCidadesEstado() {
       (cidade) => estado.ID === cidade.Estado
     );
     cidadesDoEstado = cidadesDoEstado.map((item) => {
-      return {
-        nome: item.Nome,
-        tamanhostring: item.Nome.length
-      }
+      return item.Nome
     });
 
     CidadesEstado.push({
       uf: estado.Sigla,
       totalcidades: cidadesDoEstado.length,
+  
       cidades: cidadesDoEstado,
     });
     fs.exists(`./src/json/estados/${estado.Sigla}.json`, (data) => {
