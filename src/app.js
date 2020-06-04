@@ -8,19 +8,17 @@ const app = express();
 const readFileAsync = promisify(fs.readFile);
 const writeFileAsync = promisify(fs.writeFile);
 
-
 const CidadesEstado = [];
 
-let estados = require(path.resolve(__dirname, 'json', 'estados.json'));
-let cidades = require(path.resolve(__dirname, 'json', 'cidades.json'));
+let estados = require(path.resolve(__dirname, "json", "estados.json"));
+let cidades = require(path.resolve(__dirname, "json", "cidades.json"));
 
 async function start() {
   await loadCidadesEstado();
-   maisCidades();
-   menosCidades();
-   maiorMenorCidade();
+  maisCidades();
+  menosCidades();
+  maiorMenorCidade();
 }
-
 
 const loadCidadesEstado = async () => {
   await estados.map((estado) => {
@@ -28,26 +26,30 @@ const loadCidadesEstado = async () => {
       (cidade) => estado.ID === cidade.Estado
     );
     cidadesDoEstado = cidadesDoEstado.map((item) => {
-      return {nome: item.Nome, tamanhostring: item.Nome.length};
+      return { nome: item.Nome, tamanhostring: item.Nome.length };
     });
-    cidadesDoEstado.sort((a,b) => a.nome.localeCompare(b.nome));
+    cidadesDoEstado.sort((a, b) => a.nome.localeCompare(b.nome));
     //5 e 6
-    const maiorString = Math.max.apply(Math, cidadesDoEstado.map(item => item.tamanhostring))
-    const cidadeMaiorString = cidadesDoEstado.find(cidade => cidade.tamanhostring === maiorString)
-    const menorString = Math.min.apply(Math, cidadesDoEstado.map(item => item.tamanhostring))
-    const cidadeMenorString = cidadesDoEstado.find(cidade => cidade.tamanhostring === menorString)
+    const maiorString = Math.max.apply(
+      Math,
+      cidadesDoEstado.map((item) => item.tamanhostring)
+    );
+    const cidadeMaiorString = cidadesDoEstado.find(
+      (cidade) => cidade.tamanhostring === maiorString
+    );
+    const menorString = Math.min.apply(
+      Math,
+      cidadesDoEstado.map((item) => item.tamanhostring)
+    );
+    const cidadeMenorString = cidadesDoEstado.find(
+      (cidade) => cidade.tamanhostring === menorString
+    );
 
     CidadesEstado.push({
       uf: estado.Sigla,
       totalcidades: cidadesDoEstado.length,
-      maiorCidade:  [
-        cidadeMaiorString,
-        maiorString,
-      ],
-      menorCidade: [
-        cidadeMenorString,
-        menorString,
-      ]
+      maiorCidade: [cidadeMaiorString, maiorString],
+      menorCidade: [cidadeMenorString, menorString],
     });
     fs.exists(
       path.resolve(__dirname, "json", "estados", `${estado.Sigla}.json`),
@@ -56,7 +58,7 @@ const loadCidadesEstado = async () => {
           generateJsonEstados(
             estado.Sigla,
             cidadesDoEstado.length,
-            cidadesDoEstado,
+            cidadesDoEstado
           );
         }
       }
@@ -72,8 +74,6 @@ app.get("/cidades", (_, res) => {
   return res.json(cidades);
 });
 
-
-
 app.get("/CidadesEstado", (_, res) => {
   res.json(CidadesEstado);
 });
@@ -82,7 +82,7 @@ const generateJsonEstados = async (uf, totalcidades, cidades) => {
   try {
     await writeFileAsync(
       path.resolve(__dirname, "json", "estados", `${uf}.json`),
-      JSON.stringify({ uf, totalcidades, cidades }),
+      JSON.stringify({ uf, totalcidades, cidades })
     );
   } catch (err) {
     console.log(err);
@@ -144,15 +144,29 @@ const menosCidades = async () => {
 //7 e 8
 const maiorMenorCidade = async () => {
   const cidadesOrdened = cidades.sort((a, b) => a.Nome.localeCompare(b.Nome));
-  const maiorString = Math.max.apply(Math, cidadesOrdened.map(item => item.Nome.length))
-  const cidadeMaiorString = cidadesOrdened.find(Nome => Nome.Nome.length === maiorString)
-  const menorString = Math.min.apply(Math, cidadesOrdened.map(item => item.Nome.length))
-  const cidadeMenorString = cidadesOrdened.find(Nome => Nome.Nome.length === menorString)
+  const maiorString = Math.max.apply(
+    Math,
+    cidadesOrdened.map((item) => item.Nome.length)
+  );
+  const cidadeMaiorString = cidadesOrdened.find(
+    (Nome) => Nome.Nome.length === maiorString
+  );
+  const menorString = Math.min.apply(
+    Math,
+    cidadesOrdened.map((item) => item.Nome.length)
+  );
+  const cidadeMenorString = cidadesOrdened.find(
+    (Nome) => Nome.Nome.length === menorString
+  );
   return [
-    {maior: maiorString, cidadeMaiorString, 
-    menor: menorString, cidadeMenorString}
-  ]
-}
+    {
+      maior: maiorString,
+      cidadeMaiorString,
+      menor: menorString,
+      cidadeMenorString,
+    },
+  ];
+};
 
 app.get("/", async (_, res) => {
   const maiorMenor = await maiorMenorCidade();
